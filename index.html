@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>OpenFOAM PostPlotter v20 — by Michel Duarte</title>
+<title>OpenFOAM PostPlotter v22 — by Michel Duarte</title>
 <style>
 :root{
   --bg:#f3f6fa; --panel:#ffffff; --panel2:#f8fbff; --line:#d7e1ee;
@@ -245,6 +245,22 @@ body.dark .caseBox{background:rgba(17,26,36,.78)}
 .btn.tiny{padding:6px 8px;font-size:10px;border-radius:9px}
 .caseRemove{width:31px;height:31px;padding:0;display:grid;place-items:center}
 
+/* v22 — case visibility toggle */
+.caseTop{grid-template-columns:auto 1fr auto}
+.caseVisibilityBtn{
+  width:34px;height:34px;padding:0;border-radius:10px;display:grid;place-items:center;
+  border:1px solid var(--line);background:var(--panel2);color:var(--accent);transition:.16s;
+}
+.caseVisibilityBtn:hover{border-color:var(--accent);transform:translateY(-1px)}
+.caseVisibilityBtn svg{width:18px;height:18px;display:block}
+.caseVisibilityBtn .eyeClosed{display:none}
+.caseVisibilityBtn.off{color:var(--muted);background:transparent}
+.caseVisibilityBtn.off .eyeOpen{display:none}
+.caseVisibilityBtn.off .eyeClosed{display:block}
+.caseBox.caseHidden{opacity:.62}
+.caseBox.caseHidden .caseName{text-decoration:none;color:var(--muted)}
+.series.caseHiddenSeries{opacity:.42}
+
 
 .chartwrap.dragMode canvas{cursor:grab}
 .chartwrap.dragging canvas{cursor:grabbing}
@@ -345,6 +361,34 @@ body.dark .caseFileRow{
   font-size:9px !important;
 }
 
+
+
+/* v21 — Smart OpenFOAM folder/case importer */
+/* v22 — Eye toggle to hide/show complete cases without deleting them */
+.smartImportOverlay{
+  position:fixed;inset:0;z-index:980;display:none;align-items:center;justify-content:center;
+  padding:24px;background:rgba(3,9,20,.66);backdrop-filter:blur(12px)
+}
+.smartImportOverlay.open{display:flex}
+.smartImportDialog{
+  width:min(820px,96vw);max-height:88vh;overflow:auto;position:relative;
+  border:1px solid var(--line);border-radius:24px;background:var(--panel);color:var(--text);
+  box-shadow:0 30px 80px rgba(0,0,0,.34);padding:22px
+}
+.smartImportHead{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:16px}
+.smartImportHead h3{margin:0;font-size:20px}.smartImportHead p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.5}
+.smartImportClose{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:20px;display:grid;place-items:center}
+.smartImportList{display:flex;flex-direction:column;gap:10px}
+.smartCaseRow{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;border:1px solid var(--line);border-radius:16px;padding:12px;background:var(--panel2)}
+.smartCaseRow.already{opacity:.58}.smartCaseCheck{margin-top:9px;width:17px;height:17px}
+.smartCaseMain{min-width:0}.smartCaseTop{display:grid;grid-template-columns:minmax(180px,.7fr) minmax(0,1.3fr);gap:10px;align-items:center}
+.smartCaseName{width:100%;font-weight:700}.smartCasePath{font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.smartCaseMeta{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.smartCasePill{font-size:9px;border:1px solid var(--line);border-radius:999px;padding:4px 7px;color:var(--muted);background:var(--panel)}
+.smartCasePill.good{color:#22805b;border-color:rgba(34,128,91,.30);background:rgba(34,128,91,.08)}
+.smartCasePill.warn{color:#a87511;border-color:rgba(168,117,17,.30);background:rgba(168,117,17,.08)}
+.smartImportActions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.smartImportSummary{font-size:11px;color:var(--muted);margin-top:8px}
+@media(max-width:650px){.smartImportDialog{padding:16px}.smartCaseTop{grid-template-columns:1fr}.smartImportActions{justify-content:stretch}.smartImportActions .btn{flex:1}.smartCasePath{white-space:normal}}
 
 /* v20 — About the Developer, rebuilt from the approved Michel's Life base with full embedded portrait */
 .aboutOverlay{
@@ -736,6 +780,26 @@ body:not(.dark) .aboutOverlay{background:rgba(20,31,47,.48)}
 </main>
 </div>
 
+
+<div class="smartImportOverlay" id="smartImportOverlay" aria-hidden="true">
+  <section class="smartImportDialog" role="dialog" aria-modal="true" aria-labelledby="smartImportTitle">
+    <div class="smartImportHead">
+      <div>
+        <h3 id="smartImportTitle">OpenFOAM cases detected</h3>
+        <p id="smartImportIntro">PostPlotter found probe outputs inside the selected folder. Choose which ones you want to add as cases.</p>
+      </div>
+      <button class="smartImportClose" id="smartImportClose" aria-label="Close">×</button>
+    </div>
+    <div class="smartImportList" id="smartImportList"></div>
+    <div class="smartImportSummary" id="smartImportSummary"></div>
+    <div class="smartImportActions">
+      <button class="btn soft" id="smartImportCancel">Cancel</button>
+      <button class="btn soft" id="smartImportRaw">Load selected without cases</button>
+      <button class="btn primary" id="smartImportAdd">Add selected as cases</button>
+    </div>
+  </section>
+</div>
+
 <div class="aboutOverlay" id="aboutDeveloperOverlay" aria-hidden="true">
   <section class="aboutShell" role="dialog" aria-modal="true" aria-labelledby="aboutDeveloperTitle">
     <button class="aboutClose" id="aboutDeveloperClose" aria-label="Close">×</button>
@@ -785,7 +849,7 @@ body:not(.dark) .aboutOverlay{background:rgba(20,31,47,.48)}
     </div>
 
     <div class="aboutFooter">
-      <div>© 2026 Michel Duarte / Michel's Lab. All rights reserved. <span class="aboutVersion">OpenFOAM PostPlotter · v20</span></div>
+      <div>© 2026 Michel Duarte / Michel's Lab. All rights reserved. <span class="aboutVersion">OpenFOAM PostPlotter · v22</span></div>
       <div class="motto" id="aboutMotto">Research data in. Clear scientific figures out.</div>
     </div>
   </section>
@@ -798,7 +862,7 @@ const $=id=>document.getElementById(id);
 const I18N={
   en:{
     appSubtitle:'Thesis-ready post-processing',
-    loadData:'Load data', addFiles:'Add files', addFolder:'Add folder', caseComparison:'Case comparison', addCase:'+ Add case', caseManagerNote:'Use the same color for the same variable and a different line style for each case.', caseFiles:'Add files', caseFolder:'Add folder', caseName:'Case name', caseLineStyle:'Case line style', removeCase:'Delete case', noCaseFiles:'No series loaded', caseSingular:'case', casePlural:'cases', filesInCase:'Files in this case', removeFile:'Remove', fileSingular:'file', filePlural:'files', confirmDeleteCase:'Delete this case and all its loaded files?',
+    loadData:'Load data', addFiles:'Add files', addFolder:'Add folder', caseComparison:'Case comparison', addCase:'+ Add case', caseManagerNote:'Use the same color for the same variable and a different line style for each case.', caseFiles:'Add files', caseFolder:'Add folder', caseName:'Case name', caseLineStyle:'Case line style', removeCase:'Delete case', noCaseFiles:'No series loaded', caseSingular:'case', casePlural:'cases', filesInCase:'Files in this case', removeFile:'Remove', fileSingular:'file', filePlural:'files', confirmDeleteCase:'Delete this case and all its loaded files?', hideCase:'Hide case from plots', showCase:'Show case in plots', caseHidden:'Hidden from plots',
     drop:'Drop OpenFOAM probe files or a postProcessing folder here',
     figure:'Figure', thesisMode:'Thesis mode', title:'Title', automaticTitle:'Automatic title',
     plotLayout:'Plot layout', combined:'Combined / dual axis', panels:'Separate panels',
@@ -827,7 +891,7 @@ const I18N={
   },
   es:{
     appSubtitle:'Postprocesamiento listo para tesis',
-    loadData:'Cargar datos', addFiles:'Agregar archivos', addFolder:'Agregar carpeta', caseComparison:'Comparación de casos', addCase:'+ Agregar caso', caseManagerNote:'Usa el mismo color para la misma variable y un tipo de línea diferente para cada caso.', caseFiles:'Agregar archivos', caseFolder:'Agregar carpeta', caseName:'Nombre del caso', caseLineStyle:'Tipo de línea del caso', removeCase:'Eliminar caso', noCaseFiles:'Sin series cargadas', caseSingular:'caso', casePlural:'casos', filesInCase:'Archivos de este caso', removeFile:'Quitar', fileSingular:'archivo', filePlural:'archivos', confirmDeleteCase:'¿Eliminar este caso y todos sus archivos cargados?',
+    loadData:'Cargar datos', addFiles:'Agregar archivos', addFolder:'Agregar carpeta', caseComparison:'Comparación de casos', addCase:'+ Agregar caso', caseManagerNote:'Usa el mismo color para la misma variable y un tipo de línea diferente para cada caso.', caseFiles:'Agregar archivos', caseFolder:'Agregar carpeta', caseName:'Nombre del caso', caseLineStyle:'Tipo de línea del caso', removeCase:'Eliminar caso', noCaseFiles:'Sin series cargadas', caseSingular:'caso', casePlural:'casos', filesInCase:'Archivos de este caso', removeFile:'Quitar', fileSingular:'archivo', filePlural:'archivos', confirmDeleteCase:'¿Eliminar este caso y todos sus archivos cargados?', hideCase:'Ocultar caso de las gráficas', showCase:'Mostrar caso en las gráficas', caseHidden:'Oculto de las gráficas',
     drop:'Arrastra aquí archivos de sondas de OpenFOAM o una carpeta postProcessing',
     figure:'Figura', thesisMode:'Modo tesis', title:'Título', automaticTitle:'Título automático',
     plotLayout:'Diseño de gráfica', combined:'Combinada / doble eje', panels:'Paneles separados',
@@ -926,6 +990,12 @@ function variableColor(field){
 }
 
 function caseById(id){return cases.find(c=>c.id===id)}
+function isCaseVisible(caseId){
+  if(caseId==null)return true;
+  const c=caseById(caseId);
+  return !c||c.visible!==false
+}
+function seriesIsVisible(s){return !!s.visible&&isCaseVisible(s.caseId)}
 function caseDash(caseId){
   const c=caseById(caseId);
   return c?.dash||'solid'
@@ -1067,6 +1137,209 @@ async function loadFiles(files,caseId=null){
 }
 
 
+
+function importUiText(){
+  const es=$('language').value==='es';
+  return es?{
+    title:'Casos de OpenFOAM detectados',
+    intro:'PostPlotter encontró salidas de probes dentro de la carpeta seleccionada. Elige cuáles quieres agregar como casos.',
+    cancel:'Cancelar',raw:'Cargar seleccionados sin crear casos',add:'Agregar seleccionados como casos',
+    files:'archivos',outputs:'salida(s) de probes',existing:'Se agregará al caso existente',already:'Ya cargado',newCase:'Nuevo caso',
+    detected:'casos detectados',selected:'seleccionados',scanning:'Analizando estructura de OpenFOAM…',none:'No se detectaron casos; cargando archivos compatibles directamente.'
+  }:{
+    title:'OpenFOAM cases detected',
+    intro:'PostPlotter found probe outputs inside the selected folder. Choose which ones you want to add as cases.',
+    cancel:'Cancel',raw:'Load selected without cases',add:'Add selected as cases',
+    files:'files',outputs:'probe output(s)',existing:'Will add to existing case',already:'Already loaded',newCase:'New case',
+    detected:'cases detected',selected:'selected',scanning:'Scanning OpenFOAM folder structure…',none:'No cases detected; loading compatible files directly.'
+  }
+}
+
+function fileParts(file){
+  return (file.webkitRelativePath||file.name||'').replace(/\\/g,'/').split('/').filter(Boolean)
+}
+function pathKey(parts){return parts.join('/')}
+function isProbeNamedSegment(s){return /probe/i.test(s||'')}
+function isTimeSegment(s){return /^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?$/.test(s||'')}
+
+async function fileLooksLikeProbeOutput(file){
+  try{
+    const head=await file.slice(0,65536).text();
+    if(!/^#\s*Probe\s+\d+/mi.test(head))return false;
+    for(const raw of head.split(/\r?\n/)){
+      const line=raw.trim();
+      if(!line||line.startsWith('#'))continue;
+      const tok=tokenize(line);
+      if(tok.length>=2&&Number.isFinite(Number(tok[0])))return true;
+    }
+  }catch(e){}
+  return false
+}
+
+function caseDescriptorFromFile(file){
+  const parts=fileParts(file);
+  const pp=parts.findIndex(x=>x.toLowerCase()==='postprocessing');
+  if(pp<1)return null;
+  const caseRoot=parts.slice(0,pp);
+  const after=parts.slice(pp+1,-1);
+  if(!after.length)return null;
+
+  let probeIndex=-1;
+  for(let i=pp+1;i<parts.length-1;i++){
+    if(isProbeNamedSegment(parts[i])){probeIndex=i;break}
+  }
+
+  const fallbackFunction=parts[pp+1];
+  const outputEnd=probeIndex>=0?probeIndex:pp+1;
+  return {
+    caseKey:pathKey(caseRoot),
+    caseName:caseRoot[caseRoot.length-1]||'Case',
+    caseRootPath:pathKey(caseRoot),
+    outputKey:pathKey(parts.slice(0,outputEnd+1)),
+    outputPath:pathKey(parts.slice(pp+1,outputEnd+1)),
+    explicit:probeIndex>=0,
+    fallbackFunction
+  }
+}
+
+async function detectOpenFOAMCases(files){
+  const byOutput=new Map();
+  for(const file of files){
+    const d=caseDescriptorFromFile(file);
+    if(!d)continue;
+    if(!byOutput.has(d.outputKey))byOutput.set(d.outputKey,{...d,files:[]});
+    byOutput.get(d.outputKey).files.push(file)
+  }
+
+  const accepted=[];
+  for(const g of byOutput.values()){
+    let ok=g.explicit;
+    if(!ok){
+      const samples=g.files.slice(0,3);
+      for(const f of samples){
+        if(await fileLooksLikeProbeOutput(f)){ok=true;break}
+      }
+    }
+    if(ok)accepted.push(g)
+  }
+
+  const byCase=new Map();
+  for(const g of accepted){
+    if(!byCase.has(g.caseKey))byCase.set(g.caseKey,{
+      key:g.caseKey,name:g.caseName,rootPath:g.caseRootPath,files:[],outputs:new Set()
+    });
+    const c=byCase.get(g.caseKey);
+    c.outputs.add(g.outputPath);
+    c.files.push(...g.files)
+  }
+
+  for(const c of byCase.values()){
+    const seen=new Set();
+    c.files=c.files.filter(f=>{const k=f.webkitRelativePath||f.name;if(seen.has(k))return false;seen.add(k);return true});
+    c.outputs=[...c.outputs];
+  }
+  return [...byCase.values()].sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true,sensitivity:'base'}))
+}
+
+function loadedSourcePaths(){
+  return new Set(series.map(s=>s.sourcePath||s.fileName))
+}
+function existingCaseByName(name){
+  const key=(name||'').trim().toLowerCase();
+  return cases.find(c=>(c.name||'').trim().toLowerCase()===key)||null
+}
+function removeInitialEmptyCaseIfNeeded(){
+  if(series.length===0&&cases.length===1&&/^(case|caso)\s*1$/i.test(cases[0].name||''))cases=[]
+}
+
+let pendingSmartCases=[];
+function closeSmartImport(){
+  const ov=$('smartImportOverlay');
+  ov.classList.remove('open');ov.setAttribute('aria-hidden','true');pendingSmartCases=[]
+}
+function selectedSmartEntries(){
+  return [...document.querySelectorAll('.smartCaseRow')].filter(r=>r.querySelector('.smartCaseCheck')?.checked).map(r=>{
+    const i=Number(r.dataset.index),candidate=pendingSmartCases[i];
+    return {candidate,name:(r.querySelector('.smartCaseName')?.value||candidate.name).trim()||candidate.name}
+  })
+}
+function syncSmartImportSummary(){
+  const t=importUiText();
+  const n=document.querySelectorAll('.smartCaseCheck:checked').length;
+  $('smartImportSummary').textContent=`${pendingSmartCases.length} ${t.detected} · ${n} ${t.selected}`
+}
+
+function openSmartImport(candidates){
+  const t=importUiText(),loaded=loadedSourcePaths();
+  pendingSmartCases=candidates;
+  $('smartImportTitle').textContent=t.title;$('smartImportIntro').textContent=t.intro;
+  $('smartImportCancel').textContent=t.cancel;$('smartImportRaw').textContent=t.raw;$('smartImportAdd').textContent=t.add;
+  const list=$('smartImportList');list.innerHTML='';
+
+  candidates.forEach((c,i)=>{
+    const remaining=c.files.filter(f=>!loaded.has(f.webkitRelativePath||f.name));
+    const allLoaded=remaining.length===0;
+    const existing=existingCaseByName(c.name);
+    const row=document.createElement('div');row.className='smartCaseRow'+(allLoaded?' already':'');row.dataset.index=i;
+    const outputText=c.outputs.join(' · ');
+    row.innerHTML=`
+      <input class="smartCaseCheck" type="checkbox" ${allLoaded?'disabled':'checked'} aria-label="Select case">
+      <div class="smartCaseMain">
+        <div class="smartCaseTop">
+          <input class="smartCaseName" value="${esc(c.name)}" ${allLoaded?'disabled':''} aria-label="Case name">
+          <div class="smartCasePath" title="${esc(c.rootPath)}">${esc(c.rootPath)}</div>
+        </div>
+        <div class="smartCaseMeta">
+          <span class="smartCasePill">${c.files.length} ${t.files}</span>
+          <span class="smartCasePill">${c.outputs.length} ${t.outputs}</span>
+          <span class="smartCasePill ${allLoaded?'warn':'good'}">${allLoaded?t.already:(existing?t.existing:t.newCase)}</span>
+        </div>
+        <div class="smartCasePath" style="margin-top:7px" title="${esc(outputText)}">${esc(outputText)}</div>
+      </div>`;
+    list.appendChild(row)
+  });
+  list.querySelectorAll('.smartCaseCheck').forEach(x=>x.addEventListener('change',syncSmartImportSummary));
+  syncSmartImportSummary();
+  const ov=$('smartImportOverlay');ov.classList.add('open');ov.setAttribute('aria-hidden','false');
+}
+
+async function importSelectedAsCases(){
+  const selected=selectedSmartEntries();if(!selected.length)return;
+  const loaded=loadedSourcePaths();removeInitialEmptyCaseIfNeeded();
+  closeSmartImport();
+  for(const {candidate,name} of selected){
+    const files=candidate.files.filter(f=>!loaded.has(f.webkitRelativePath||f.name));
+    if(!files.length)continue;
+    let c=existingCaseByName(name);
+    if(!c)c=addCase(name);
+    await loadFiles(files,c.id);
+    files.forEach(f=>loaded.add(f.webkitRelativePath||f.name))
+  }
+}
+async function importSelectedRaw(){
+  const selected=selectedSmartEntries();if(!selected.length)return;
+  const loaded=loadedSourcePaths(),files=[];
+  for(const {candidate} of selected)for(const f of candidate.files){
+    const k=f.webkitRelativePath||f.name;if(!loaded.has(k)){loaded.add(k);files.push(f)}
+  }
+  closeSmartImport();if(files.length)await loadFiles(files)
+}
+
+async function handleSmartFolderImport(files){
+  const t=importUiText();$('status').textContent=t.scanning;
+  const candidates=await detectOpenFOAMCases(files);
+  if(candidates.length){openSmartImport(candidates);return}
+  $('status').textContent=t.none;
+  await loadFiles(files)
+}
+
+$('smartImportClose').onclick=closeSmartImport;
+$('smartImportCancel').onclick=closeSmartImport;
+$('smartImportAdd').onclick=importSelectedAsCases;
+$('smartImportRaw').onclick=importSelectedRaw;
+$('smartImportOverlay').addEventListener('click',e=>{if(e.target===$('smartImportOverlay'))closeSmartImport()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('smartImportOverlay').classList.contains('open'))closeSmartImport()});
+
 function nextCaseDash(){
   return CASE_DASHES[cases.length%CASE_DASHES.length];
 }
@@ -1076,7 +1349,8 @@ function addCase(name=null){
   const c={
     id,
     name:name||`${$('language').value==='es'?'Caso':'Case'} ${cases.length+1}`,
-    dash:nextCaseDash()
+    dash:nextCaseDash(),
+    visible:true
   };
   cases.push(c);
   renderCaseManager();
@@ -1129,6 +1403,13 @@ function setCaseDash(caseId,dash){
   renderCaseManager();renderList();draw()
 }
 
+function toggleCaseVisibility(caseId){
+  const c=caseById(caseId);
+  if(!c)return;
+  c.visible=c.visible===false;
+  renderCaseManager();renderList();draw();updateMeta()
+}
+
 function pickFilesForCase(caseId,folder=false){
   const input=document.createElement('input');
   input.type='file';
@@ -1157,7 +1438,7 @@ function renderCaseManager(){
     const caseSeries=series.filter(s=>s.caseId===c.id);
     const count=caseSeries.length;
     const files=filesForCase(c.id);const el=document.createElement('div');
-    el.className='caseBox';
+    el.className='caseBox'+(c.visible===false?' caseHidden':'');
 
     const fileRows=files.length
       ? `<div class="caseFilesList">
@@ -1176,6 +1457,10 @@ function renderCaseManager(){
 
     el.innerHTML=`
       <div class="caseTop">
+        <button class="caseVisibilityBtn ${c.visible===false?'off':''}" data-role="case-visibility" title="${esc(c.visible===false?tr('showCase'):tr('hideCase'))}" aria-label="${esc(c.visible===false?tr('showCase'):tr('hideCase'))}" aria-pressed="${c.visible===false?'false':'true'}">
+          <svg class="eyeOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg class="eyeClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 6.2A10.7 10.7 0 0 1 12 6c6.5 0 10 6 10 6a17.8 17.8 0 0 1-3.2 3.9"/><path d="M6.2 6.2C3.5 8 2 12 2 12s3.5 6 10 6a10.3 10.3 0 0 0 4.1-.8"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+        </button>
         <input class="caseName" data-role="name" value="${esc(c.name)}" aria-label="${esc(tr('caseName'))}">
         <span class="badge">${files.length} ${files.length===1?esc(tr('fileSingular')):esc(tr('filePlural'))}</span>
       </div>
@@ -1200,7 +1485,7 @@ function renderCaseManager(){
         <button class="btn tiny" data-role="folder">${esc(tr('caseFolder'))}</button>
       </div>
 
-      <div class="caseMeta">${count?`${count} ${count===1?tr('curve'):tr('curves')}`:tr('noCaseFiles')}</div>
+      <div class="caseMeta">${count?`${count} ${count===1?tr('curve'):tr('curves')}`:tr('noCaseFiles')}${c.visible===false?` · ${esc(tr('caseHidden'))}`:''}</div>
       ${fileRows}
 
       <div class="caseDeleteRow">
@@ -1212,6 +1497,7 @@ function renderCaseManager(){
     name.addEventListener('change',()=>renameCase(c.id,name.value));
     name.addEventListener('keydown',e=>{if(e.key==='Enter')name.blur()});
 
+    el.querySelector('[data-role="case-visibility"]').onclick=()=>toggleCaseVisibility(c.id);
     el.querySelector('[data-role="remove-case"]').onclick=()=>removeCase(c.id);
     el.querySelector('[data-role="dash"]').onchange=e=>setCaseDash(c.id,e.target.value);
     el.querySelector('[data-role="files"]').onclick=()=>pickFilesForCase(c.id,false);
@@ -1232,7 +1518,7 @@ function renderCaseManager(){
 
 function updateMeta(){
   $('countBadge').textContent=`${series.length} series`;
-  const vis=series.filter(s=>s.visible);
+  const vis=series.filter(seriesIsVisible);
   $('subtitle').textContent=vis.length?`${vis.length} ${tr('selected')} · ${new Set(vis.map(s=>s.caseName)).size} ${tr('cases')}`:tr('loadBegin')
 }
 
@@ -1243,7 +1529,7 @@ function esc(s){
 function renderList(){
   const box=$('seriesList');box.innerHTML='';
   for(const s of series){
-    const el=document.createElement('div');el.className='series'+(s.id===activeId?' active':'');
+    const el=document.createElement('div');el.className='series'+(s.id===activeId?' active':'')+(!isCaseVisible(s.caseId)?' caseHiddenSeries':'');
     el.innerHTML=`<input type="checkbox" ${s.visible?'checked':''}>
       <div class="dot" style="background:${s.color}"></div>
       <div class="smeta">
@@ -1436,7 +1722,7 @@ function resetAxisRanges(){
 }
 
 function buildState(W,H,panelField=null){
-  let vis=series.filter(s=>s.visible);
+  let vis=series.filter(seriesIsVisible);
   if(panelField)vis=vis.filter(s=>s.field.quantity===panelField);
   if(!vis.length)return null;
 
@@ -1806,7 +2092,7 @@ function exportBackgroundFill(ctx,W,H){
 }
 
 function renderExportComposition(ctx,W,H,interactive=false){
-  const vis=series.filter(s=>s.visible);
+  const vis=series.filter(seriesIsVisible);
   if(!vis.length)return;
 
   exporting=true;
@@ -1865,7 +2151,7 @@ function sizeExactPreviewCanvas(containerW,containerH,exportW,exportH){
 
 function draw(){
   const c=$('canvas'),wrap=c.closest('.chartwrap'),r=wrap.getBoundingClientRect();
-  const vis=series.filter(s=>s.visible);
+  const vis=series.filter(seriesIsVisible);
 
   $('empty').classList.toggle('hidden',vis.length>0);
   lastCanvasBlocks=[];
@@ -1953,7 +2239,7 @@ function draw(){
 }
 
 function exportPNG(){
-  const vis=series.filter(s=>s.visible);
+  const vis=series.filter(seriesIsVisible);
   if(!vis.length)return;
 
   const [W,H]=presetSize();
@@ -1974,7 +2260,7 @@ function svgEscape(s){
 }
 
 function exportSVG(){
-  const vis=series.filter(s=>s.visible);
+  const vis=series.filter(seriesIsVisible);
   if(!vis.length)return;
   const[W,H]=presetSize();
   const bg=$('exportBg').value==='white'?`<rect width="100%" height="100%" fill="white"/>`:'';
@@ -2097,7 +2383,7 @@ function exportSVG(){
 }
 
 function exportCSV(){
-  const vis=series.filter(s=>s.visible);
+  const vis=series.filter(seriesIsVisible);
   if(!vis.length)return;
   const rows=[['case','field','display_unit','probe','probe_coordinates','time_s','display_value','raw_value','source']];
   for(const s of vis){
@@ -2803,7 +3089,7 @@ $('addCase').onclick=()=>addCase();
 $('addFiles').onclick=()=>$('filesInput').click();
 $('addFolder').onclick=()=>$('folderInput').click();
 $('filesInput').onchange=e=>loadFiles([...e.target.files]);
-$('folderInput').onchange=e=>loadFiles([...e.target.files]);
+$('folderInput').onchange=async e=>{const files=[...e.target.files];e.target.value='';await handleSmartFolderImport(files)};
 
 ['dragenter','dragover'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.add('drag')}));
 ['dragleave','drop'].forEach(ev=>$('drop').addEventListener(ev,e=>$('drop').classList.remove('drag')));
