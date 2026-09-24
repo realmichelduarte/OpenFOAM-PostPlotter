@@ -1,0 +1,44 @@
+OpenFOAM PostPlotter — Proprietary License
+Copyright (c) 2026 Michel Armando Duarte Flores. All Rights Reserved.
+
+This software, including its source code, user interface, visual design,
+documentation, assets, and associated files (collectively, the “Software”),
+is proprietary and is the exclusive intellectual property of Michel Armando
+Duarte Flores, except for third-party components that retain their respective
+rights.
+
+The Software is made publicly viewable for demonstration, academic portfolio,
+and source-review purposes only. Public availability of the source code does
+not grant any license or permission to use the Software beyond viewing it.
+
+WITHOUT PRIOR WRITTEN PERMISSION FROM THE COPYRIGHT HOLDER, YOU MAY NOT:
+
+1. Copy, reproduce, clone, or republish the Software or any substantial part
+   of it.
+2. Modify, adapt, translate, reverse engineer, create derivative works from,
+   or otherwise alter the Software.
+3. Redistribute, sublicense, share, host, mirror, or make the Software
+   available to third parties.
+4. Use the Software, its code, interface, design, structure, or assets in
+   another application, website, product, research tool, commercial service,
+   or software project.
+5. Sell, license, monetize, commercially exploit, or otherwise profit from
+   the Software or any derivative work based on it.
+6. Rebrand the Software, remove or alter copyright notices, attribution,
+   authorship information, or identifying marks.
+7. Claim the Software, its source code, design, or any derivative work as
+   your own.
+
+No patent, trademark, copyright, or other intellectual-property rights are
+licensed or transferred under this notice.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM OR IN
+CONNECTION WITH THE SOFTWARE OR ITS USE.
+
+For permissions or licensing inquiries, contact:
+Michel Armando Duarte Flores
+Email: realmichelduarte@gmail.com
+GitHub: https://github.com/realmichelduarte
