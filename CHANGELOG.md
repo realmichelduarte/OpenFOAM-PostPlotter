@@ -1,5 +1,62 @@
 # Changelog
 
+## v29
+
+- Added a dedicated **Solver logs** data view, separate from probes and spatial profiles.
+- Added automatic recognition of `foamLog`-style files such as `p_rgh_0` through `p_rgh_5`.
+- Groups solver-log files by family and sub-iteration instead of treating them as unrelated curves.
+- Added log-family and sub-iteration selectors with previous/next navigation.
+- Recognizes related families such as final residual and iteration-count outputs.
+- Supports detection from a `logs/` folder and compatible standalone log files.
+
+## v28
+
+- Added quick visibility controls for complete spatial-profile families.
+- Family visibility now persists while using Play, Previous/Next, or the profile time slider.
+- Added automatic case-family comparison shortcuts.
+- Added expanded curve metrics including extrema locations, averages, velocity RMS, Uy zero crossings, and difference metrics.
+- Added configurable physical reference lines and custom X/Y references.
+- Added one-click Thesis Figure mode and high-resolution thesis export preset.
+- Corrected temperature-difference display so ΔT is not treated as an absolute temperature during K/°C switching.
+
+## v27
+
+- Added bidirectional legend resizing.
+- Legend typography, row spacing, padding, and line samples scale with legend width.
+- Added separate inner/outer resize edges and a resize corner for side legends.
+
+## v26
+
+- Added contextual case-family coloring for spatial profiles.
+- Spatial-profile family members share a color while detected variants use different line styles.
+- Time-series/probe plots continue to use color by physical variable.
+- Added detected family/variant information to the case manager.
+
+## v25
+
+- Added automatic scientific tick precision and scientific notation where needed.
+- Added friendly liquid-fraction labeling while retaining original OpenFOAM field names.
+- Added automatic `Velocity magnitude |U|` and `Velocity XY` derived fields.
+- Added Difference plots with maximum absolute difference and its X position.
+- Added Compare heights mode for spatial profiles.
+- Added profile time slider, previous/next navigation, and Play/Pause animation.
+- Added optional locked axes during animation.
+- Added chart zoom controls and Fit-to-workspace behavior.
+- Improved curve counters and duplicate-series protection.
+
+## v24
+
+- Added resizable/collapsible settings sidebar.
+- Added independent horizontal/vertical scrolling for the chart workspace.
+- Added resizable side legend and quick case visibility controls.
+
+## v23
+
+- Added intelligent classification of OpenFOAM time-series data versus spatial profiles.
+- Added automatic detection of horizontal/vertical profile orientation.
+- Added support for spatial-profile metadata such as line height and simulation time.
+- Added spatial-profile comparison workflows without mixing profiles with probe time series.
+
 ## v22
 
 - Added an eye toggle to hide/show complete cases without deleting them.
